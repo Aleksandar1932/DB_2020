@@ -1,0 +1,57 @@
+-- SELECT bdate, address FROM EMPLOYEE WHERE fname='John' and minit='B' AND lname='Smith'
+
+-- SELECT fname, minit, lname FROM EMPLOYEE WHERE address LIKE '%Houston, TX%'
+
+-- SELECT fname, minit, lname FROM EMPLOYEE WHERE bdate BETWEEN '1950/01/01' and '1959/12/12'
+
+-- SELECT fname, lname, salary*1.1 as increasedSalary FROM EMPLOYEE WHERE fname='John' and lname='Smith' and minit='B'
+
+--SELECT fname, address, dname FROM EMPLOYEE INNER JOIN (SELECT * FROM DEPARTMENT WHERE dname='Research') DEPARTMENT ON EMPLOYEE.dno = DEPARTMENT.Dnumber;
+
+-- SELECT pnumber, dnumber, fname, address, bdate FROM ( ((SELECT * FROM PROJECT WHERE plocation='Stafford') PROJECT INNER JOIN DEPARTMENT ON PROJECT.Dnum = DEPARTMENT.Dnumber) INNER JOIN EMPLOYEE ON mgr_ssn=EMPLOYEE.ssn);
+
+-- SELECT E.fname as employee_fname, E.lname as employee_lname, S.fname as boss_fname, S.lname as boss_name FROM EMPLOYEE as E, EMPLOYEE as S WHERE E.super_ssn = s.ssn;
+
+-- SELECT ssn FROM EMPLOYEE
+
+-- SELECT DISTINCT salary from EMPLOYEE
+
+-- SELECT pname FROM WORKSON INNER JOIN (SELECT * from EMPLOYEE WHERE lname='Smith') as EMPLOYEE on WORKSON.Essn = EMPLOYEE.ssn INNER JOIN PROJECT ON pno = PROJECT.pnumber UNION SELECT pname FROM WORKSON INNER JOIN PROJECT on WORKSON.pno = PROJECT.pnumber INNER JOIN DEPARTMENT ON dnum = DEPARTMENT.dnumber INNER JOIN (SELECT * from EMPLOYEE WHERE lname='Smith') as EMPLOYEE on mgr_ssn = EMPLOYEE.ssn;
+
+-- SELECT Essn FROM WORKSON WHERE pno in (1,2,3);
+
+-- SELECT fname, address FROM EMPLOYEE WHERE dno in (SELECT dnumber FROM DEPARTMENT WHERE dname='Research')
+
+-- SELECT DISTINCT fname FROM (SELECT * FROM EMPLOYEE INNER JOIN DEPENDENT ON EMPLOYEE.ssn = DEPENDENT.Essn) WHERE fname = dependentname;
+
+-- SELECT fname, lname from EMPLOYEE WHERE NOT EXISTS (SELECT * FROM DEPENDENT WHERE ssn = DEPENDENT.Essn)
+
+-- SELECT fname from EMPLOYEE WHERE super_ssn IS NULL;
+
+-- SELECT E.fname as Vraboten_Ime, E.lname as Vraboten_Prezime, S.fname as Shef_Ime,  S.lname  as Shef_Prezime FROM EMPLOYEE AS E JOIN EMPLOYEE AS S ON E.super_ssn = S.ssn;
+
+-- SELECT pnumber, dnum, lname, address, bdate FROM (SELECT * FROM PROJECT WHERE plocation='Stafford') AS PROJECT JOIN DEPARTMENT ON PROJECT.Dnum = DEPARTMENT.Dnumber JOIN EMPLOYEE ON DEPARTMENT.Mgr_ssn = ssn
+
+-- SELECT MAX(salary), MIN(salary), AVG(salary) FROM EMPLOYEE
+
+-- SELECT MAX(salary), MIN(salary), AVG(salary) FROM EMPLOYEE JOIN (SELECT * FROM DEPARTMENT WHERE dname='Research') AS DEPARTMENT ON EMPLOYEE.dno = DEPARTMENT.Dnumber;
+
+-- SELECT COUNT(*) FROM EMPLOYEE
+
+-- SELECT COUNT (*) FROM EMPLOYEE JOIN (SELECT * FROM DEPARTMENT WHERE dname = 'Research') as DEPARTMENT ON EMPLOYEE.dno = DEPARTMENT.dnumber;
+
+-- SELECT COUNT(DISTINCT(salary)) FROM EMPLOYEE;
+
+-- SELECT dno, COUNT(ssn), AVG(salary) FROM EMPLOYEE GROUP BY dno;
+
+-- SELECT pno as project_number, pname as project_name, COUNT(essn) as number_of_employees FROM WORKSON JOIN PROJECT ON pno = pnumber GROUP BY pno;
+
+-- SELECT pno, pname, count(essn) FROM WORKSON JOIN PROJECT ON WORKSON.Pno = PROJECT.Pnumber GROUP BY pno, pname HAVING COUNT(essn) > 2;
+
+-- SELECT fname, lname, dname, pname FROM EMPLOYEE JOIN WORKSON ON EMPLOYEE.ssn = WORKSON.essn JOIN PROJECT ON WORKSON.Pno = PROJECT.pnumber JOIN DEPARTMENT ON EMPLOYEE.dno = DEPARTMENT.dnumber ORDER BY dname, lname;
+
+
+-- AZHURIRANJE NA BAZI NA PODATOCI
+
+-- NAPREDNI TEHNIKI NA SQL
+
