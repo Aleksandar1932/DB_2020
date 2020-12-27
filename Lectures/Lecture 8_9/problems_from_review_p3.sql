@@ -111,3 +111,90 @@ from (select a.salesman_id as id, sum(purch_amt) as total
                join orders on a.salesman_id = orders.salesman_id
       group by a.salesman_id) as b
          join salesman on b.id = salesman.salesman_id;
+         
+--101
+select customer_id, cust_name, 'Customer' as type
+from customer
+where city = 'London'
+UNION
+select salesman_id, name, 'Salesman' as type
+from salesman
+where city = 'London';
+
+--102
+select salesman_id, city
+from salesman
+UNION
+select customer_id, city
+from customer;
+
+--103
+select salesman_id as id
+from salesman
+UNION
+select customer_id as id
+from customer;
+
+--104
+select ord_no, ord_date, salesman_id, 'HIGH' as type
+from orders
+where purch_amt = any (select max(purch_amt) from orders group by ord_date)
+union
+select ord_date, salesman_id, 'LOW' as type
+from orders
+where purch_amt = any (select min(purch_amt) from orders group by ord_date);
+
+--105
+select *
+from (
+         select ord_no, ord_date, salesman_id, 'HIGH' as type
+         from orders
+         where purch_amt = any (select max(purch_amt) from orders group by ord_date)
+         union
+         select ord_no, ord_date, salesman_id, 'LOW' as type
+         from orders
+         where purch_amt = any (select min(purch_amt) from orders group by ord_date)
+     ) as a
+order by a.ord_no;
+
+--106
+select salesman.salesman_id
+from salesman,
+     customer
+where salesman.city <> customer.city
+union
+select salesman.salesman_id
+from salesman,
+     customer
+where salesman.city = customer.city
+
+select distinct(salesman_id)
+from customer;
+
+-- 107
+select salesman_id, city, 'YES' as has_customer_from_same_city
+from salesman as a
+where salesman_id in
+      (select salesman_id from customer where customer.salesman_id = a.salesman_id and a.city = customer.city)
+
+union
+select salesman_id, city, 'NO'
+from salesman as a
+where salesman_id in
+      (select salesman_id from customer where customer.salesman_id = a.salesman_id and a.city <> customer.city);
+
+--108
+SELECT customer_id, city, grade, 'High Rating'
+FROM customer
+WHERE grade >= 300
+UNION
+SELECT customer_id, city, grade, 'Low Rating'
+FROM customer
+WHERE grade < 300;
+
+--109
+select a.salesman_id, a.customer_id, salesman.name, customer.cust_name
+from (select salesman_id, customer_id from orders group by salesman_id, customer_id having count(ord_no) > 1) as a
+         join customer on a.customer_id = customer.customer_id
+         join salesman on a.salesman_id = salesman.salesman_id;
+
