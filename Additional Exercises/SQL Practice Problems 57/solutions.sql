@@ -261,3 +261,14 @@ FROM
 (select distinct(country) from Supplier
 UNION
 select distinct(country) from Customer) as t
+
+--55
+SELECT shipcountry, o.orderdate
+from "Order" o
+where orderdate = (select min(OrderDate) from "Order" o2 where o.shipcountry = o2.shipcountry )
+
+--56/57
+SELECT distinct(o1.customerid) FROM "Order" o1, "Order" o2
+where o1.customerid = o2.customerid 
+and o1.id <> o2.id
+and abs(julianday(o1.orderdate) - julianday(o2.orderdate)) < 5
