@@ -99,3 +99,165 @@ select * from Customer where not EXISTS (Select * from "Order" as o where o.cust
 
 --31
 select * from Customer where not EXISTS (Select * from "Order" as o where o.customerid = Customer.Id and  o.employeeid = 4)
+
+--31
+select * from Customer WHERE NOT EXISTS (Select * from "Order" o where o.customerid = customer.Id and o.employeeid = 4)
+
+--32
+select DISTINCT(CustomerId),orderid, companyname, total_op FROM(
+(SELECT OrderId, total_op from (select OrderId, SUM(unitprice * quantity) as total_op
+from "OrderDetail" 
+GROUP by OrderId)
+WHERE total_op > 10000) as t1 JOIN "Order" o on t1.OrderId = o.Id
+and o.orderdate BETWEEN '2016-01-01' and '2016-12-31') JOIN Customer on CustomerId = Customer.Id;
+
+--33
+select DISTINCT(CustomerId),orderid, companyname, total_op FROM(
+(SELECT OrderId, total_op from (select OrderId, SUM(unitprice * quantity) as total_op
+from "OrderDetail" 
+GROUP by OrderId)
+WHERE total_op >= 15000) as t1 JOIN "Order" o on t1.OrderId = o.Id
+and o.orderdate BETWEEN '2016-01-01' and '2016-12-31') JOIN Customer on CustomerId = Customer.Id;
+
+--34
+select DISTINCT(CustomerId),orderid, companyname, total_op_disc FROM(
+(SELECT OrderId, total_op_disc from (select OrderId, SUM((unitprice * quantity) * (1-discount)) as total_op_disc
+from "OrderDetail" 
+GROUP by OrderId)
+WHERE total_op_disc >= 10000) as t1 JOIN "Order" o on t1.OrderId = o.Id
+and o.orderdate BETWEEN '2016-01-01' and '2016-12-31') JOIN Customer on CustomerId = Customer.Id;
+
+--35
+select employeeid, id, orderdate from "Order"
+where strftime("%d", OrderDate) = strftime("%d", date(OrderDate,'start of month','+1 month','-1 day'))
+order by 1,2;
+
+--36
+select Distinct(OrderId), COUNT(*)  totalOrderItems from OrderDetail
+group by OrderId
+order by 2 desc
+
+--37
+SELECT *,random()  as rnd
+FROM "Order"
+order by rnd
+LIMIT (select ROUND(count(*) * 0.2,0) from "Order")
+
+--38
+create view if not exists tmp1 as 
+select * from OrderDetail od, "Order" o
+where od.OrderId = o.id 
+and o.employeeid  = (Select id from Employee Where firstname = 'Janet' and lastname = 'Leverling') 
+and quantity > 60;
+
+select a.orderid
+FROM
+tmp1 a, tmp1 b
+where
+a.orderid = b.orderid
+and a.productid<> b.productid
+and a.quantity = b.quantity
+
+--39
+-- samo join so order po orderid
+
+--40
+-- veke napraveno
+
+--41
+SELECT * FROM "Order"
+where shippeddate > requireddate
+
+--42
+select * from Employee where Employee.Id in (SELECT distinct(employeeid) FROM "Order"
+where shippeddate > requireddate)
+
+--43/44/45
+select * from ((SELECT EmployeeId, count(*) as totalLate
+FROM "Order"
+where shippeddate > requireddate
+GROUP by employeeid) as total_late
+
+NATURAL JOIN
+
+(SELECT EmployeeId, count(*) as total_orders
+FROM "Order"
+GROUP by employeeid))
+
+--46/47
+select *, printf("%.4f %%",(totalLate*1.0/total_orders*1.0)*100) as missing_percentage
+
+from ((SELECT EmployeeId, count(*) as totalLate
+FROM "Order"
+where shippeddate > requireddate
+GROUP by employeeid) as total_late
+
+NATURAL JOIN
+
+(SELECT EmployeeId, count(*) as total_orders
+FROM "Order"
+GROUP by employeeid) )
+order by 4 desc
+
+--48
+select *,
+CASE  
+       WHEN total_per_customer >= 0 and total_per_customer < 10000 THEN '[0-10000)' 
+       wHEN total_per_customer >= 10000 and total_per_customer < 50000 THEN '[10000-50000)' 
+       wHEN total_per_customer >= 50000 and total_per_customer < 100000 THEN '[50000-100000)' 
+       wHEN total_per_customer >= 100000 THEN '[100000 + inf)' 
+       END CustomerGroup
+from 
+(select customerid, sum(total_op) as total_per_customer from (
+select o.id, customerid, ((od.UnitPrice*od.quantity)*(1-od.Discount)) as total_op
+from "Order" o, OrderDetail od
+where strftime("%Y", orderdate) = '2016'
+and o.id = od.OrderId)
+GROUP by customerid)
+order by 1
+
+--49/50
+create view if not EXISTS tmp2  as
+select *,
+CASE  
+       WHEN total_per_customer >= 0 and total_per_customer < 10000 THEN '[0-10000)' 
+       wHEN total_per_customer >= 10000 and total_per_customer < 50000 THEN '[10000-50000)' 
+       wHEN total_per_customer >= 50000 and total_per_customer < 100000 THEN '[50000-100000)' 
+       wHEN total_per_customer >= 100000 THEN '[100000 + inf)' 
+       END CustomerGroup
+from 
+(select customerid, sum(total_op) as total_per_customer from (
+select o.id, customerid, ((od.UnitPrice*od.quantity)*(1-od.Discount)) as total_op
+from "Order" o, OrderDetail od
+where strftime("%Y", orderdate) = '2016'
+and o.id = od.OrderId)
+GROUP by customerid)
+order by 1;
+
+
+select CustomerGroup, Count(*) as clients_in_group,  printf("%.3f %%",(Count(*)*1.0/(select count(*) from tmp2))*100) as percentage
+from tmp2
+GROUP by CustomerGroup
+order by 3 desc
+
+--51
+-- ja nemam tabelata no samo obicen join
+
+--52
+select distinct(country) from Supplier
+UNION
+select distinct(country) from Customer
+
+--53
+select distinct(country) from Supplier
+FULL OUTER
+select distinct(country) from Customer
+
+--54
+select t.Country, 
+(Select count(distinct(Supplier.Id)) from Supplier where Supplier.country =t.Country) as suppliers,
+(Select count(distinct(Customer.Id)) from Customer where Customer.country =t.Country) as customers
+FROM
+(select distinct(country) from Supplier
+UNION
+select distinct(country) from Customer) as t
